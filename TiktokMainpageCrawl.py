@@ -4,7 +4,7 @@ import time
 from openpyxl import load_workbook
 
 options = webdriver.ChromeOptions()
-#添加配置，反反爬
+#add configuration
 options.add_argument('--disable-blink-features=AutomationControlled')
 options.add_experimental_option('useAutomationExtension', False)
 #options.add_experimental_option('debuggerAddress', '127.0.0.1:9222')
@@ -12,44 +12,43 @@ options.add_experimental_option('excludeSwitches', ['enable-automation'])
 
 
 def crawlMainpage(options):
-    # 创建窗口实例
+    # create a browser instance
     driver = webdriver.Chrome(options=options)
     for i in range(10):
-        driver.get("https://www.tiktok.com/foryou?lang=en")  # 访问网页,多刷新几次
-    #打开工作表
+        driver.get("https://www.tiktok.com/foryou?lang=en")  # refresh
+    # open workbook
     path = 'D://cs//python2021//projects//TiktokMainpages.xlsx'
     wb = load_workbook(path)
     ws = wb.active
     time.sleep(10)
-    i = 1  #初始化计数器
-    while i < 31:   #一页最多刷新出30个视频
+    i = 1  # initialize calculator
+    while i < 40:
         time.sleep(2)
         print(str(i)+' on the page:')
         try:
-            # 选取class名为‘lazyload-wrapper’的span元素
-            con = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']')
-            name = con.find_element_by_xpath("//div//div//div[1]//h3[1]").text
+            # select span element with class name ‘lazyload-wrapper’
+            # con = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']') if use another variable, data would remain the first span element
+            name = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[1]//h3[1]").text
         except:
             driver.quit()
             time.sleep(1)
-            # 创建窗口实例
+            # create a browser instance
             driver = webdriver.Chrome(options=options)
             for i in range(10):
-                driver.get("https://www.tiktok.com/foryou?lang=en")  # 访问网页,多刷新几次得到新的内容
-                con = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']" + '[' + str(i) + ']')
+                driver.get("https://www.tiktok.com/foryou?lang=en")  # refresh several times
             time.sleep(10)
-            i = 1  #重新初始化计数器
+            i = 1  # reinitialize calculator
             print(str(i) + ' on the page:')
-            name = con.find_element_by_xpath("//div//div//div[1]//h3[1]").text
+            name = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[1]//h3[1]").text
         homepage = 'https://www.tiktok.com/@' + str(name) + '?lang=en'
-        desc = ''
         try:
-            desc = con.find_element_by_xpath("//div//div//div[2]//strong[1]").text
+            desc = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[2]//strong[1]").text
+            if desc[0] == '#':
+                des = ''
         except:
             desc = ''
-        tags = []
         try:
-            tags = con.find_elements_by_xpath("//div//div//div[2]//a//strong")  #可能没有strong标签
+            tags = driver.find_elements_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[2]//a//strong")  # may have no strong tag
             if len(tags) != 0:
                 for j in range(len(tags)):
                     tags[j] = tags[j].text
@@ -61,32 +60,32 @@ def crawlMainpage(options):
         except:
             tags = []
         try:
-            musicName = con.find_element_by_xpath("//div//div//div[4]//h4//a//div").text
+            musicName = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[4]//h4//a//div").text
         except:
-            musicName = con.find_element_by_xpath("//div//div//div[3]//h4//a//div").text
+            musicName = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[3]//h4//a//div").text
         try:
-            videoLink = con.find_element_by_xpath("//div//div//div[5]//div[1]//a").get_attribute('href')
+            videoLink = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[5]//div[1]//a").get_attribute('href')
         except:
-            videoLink = con.find_element_by_xpath("//div//div//div[4]//div[1]//a").get_attribute('href')
+            videoLink = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[4]//div[1]//a").get_attribute('href')
         try:
-            likes = con.find_element_by_xpath("//div//div//div[5]//div[2]//div[1]//strong").text
+            likes = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[5]//div[2]//div[1]//strong").text
         except:
-            likes = con.find_element_by_xpath("//div//div//div[4]//div[2]//div[1]//strong").text
+            likes = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[4]//div[2]//div[1]//strong").text
         try:
-            comments = con.find_element_by_xpath("//div//div//div[5]//div[2]//div[2]//strong").text
+            comments = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[5]//div[2]//div[2]//strong").text
         except:
-            comments = con.find_element_by_xpath("//div//div//div[4]//div[2]//div[2]//strong").text
+            comments = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[4]//div[2]//div[2]//strong").text
         try:
-            forwards = con.find_element_by_xpath("//div//div//div[5]//div[2]//div[3]//strong").text
+            forwards = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[5]//div[2]//div[3]//strong").text
         except:
-            forwards = con.find_element_by_xpath("//div//div//div[4]//div[2]//div[3]//strong").text
+            forwards = driver.find_element_by_xpath("//span[@class='lazyload-wrapper']"+'['+str(i)+']'+"//div//div//div[4]//div[2]//div[3]//strong").text
         print([name, homepage, desc, tags, musicName, videoLink, likes, comments, forwards])
         ws.append([name, homepage, desc, str(tags), musicName, videoLink, likes, comments, forwards])
         wb.save(path)
         wb.close()
-        print('写入完成')
+        print('recording complete')
         print('-----------------------------------------------')
-        i += 1  #计数器
+        i += 1  # calculator added by 1
         time.sleep(3)
     driver.quit()
 
